@@ -8,13 +8,13 @@ export const UsersMigration = async (client: Client) => {
             id SERIAL PRIMARY KEY,
             registration_id VARCHAR(100) DEFAULT NULL,
             
-            name VARCHAR(20) NOT NULL,
+            name VARCHAR(50) NOT NULL,
             phone BIGINT UNIQUE NOT NULL,
             email VARCHAR(100) UNIQUE DEFAULT NULL,
             password VARCHAR(100) NOT NULL,
             photo VARCHAR(100) DEFAULT NULL,
 
-            account_type VARCHAR(10) NOT NULL DEFAULT 'student' CHECK(account_type IN ('student', 'teacher', 'vendor', 'department_spoc', 'institution_spoc', 'admin')),
+            account_type VARCHAR(20) NOT NULL DEFAULT 'student' CHECK(account_type IN ('student', 'teacher', 'vendor', 'department_spoc', 'institution_spoc', 'admin')),
 
             created_at TIMESTAMP NOT NULL DEFAULT NOW(),
             deleted_at TIMESTAMP DEFAULT NULL,

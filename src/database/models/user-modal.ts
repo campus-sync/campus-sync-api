@@ -31,7 +31,7 @@ export default class User {
     name: string,
     phone: number,
     password: string,
-    accountType: string,
+    accountType: AccountTypes,
     email?: string,
     photo?: string,
     updatedAt?: Date,
@@ -43,7 +43,7 @@ export default class User {
     this.name = name;
     this.phone = phone;
     this.password = password;
-    this.accountType = 'student';
+    this.accountType = accountType;
 
     if (email) this.email = email;
     if (photo) this.photo = photo;

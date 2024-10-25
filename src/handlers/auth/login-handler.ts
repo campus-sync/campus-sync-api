@@ -17,6 +17,8 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
     return next(new AppError('Invalid password', 'INVALID_PARAMETERS', 400));
   }
 
+  console.log(user);
+
   const abstractedUser: AbstractedUser = {
     id: user.id,
     registration_id: user.registrationId,
