@@ -37,6 +37,8 @@ export default class Canteen_Item {
   }
 
   async update(): Promise<boolean> {
+    console.log(this);
+
     const data = await pool.query(
       `
       UPDATE canteen_items SET name = $1, description = $2, price = $3, type = $4

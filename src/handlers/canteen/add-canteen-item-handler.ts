@@ -21,7 +21,7 @@ export const addCanteenItemHandler = catchAsync(async (req: Request, res: Respon
   return res.status(201).json(response);
 });
 
-export const CanteenItemBodyValidator = (req: Request, res: Response, next: NextFunction) => {
+export const AddCanteenItemBodyValidator = (req: Request, res: Response, next: NextFunction) => {
   const { name, description, price, type } = req.body as AddCanteenReqBody;
 
   const missing: string[] = [];

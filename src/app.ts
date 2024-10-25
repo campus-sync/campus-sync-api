@@ -5,7 +5,7 @@ import { AccessVerification } from './middleware/access-verification';
 import { AuthorizedHeaderVerification, GenericHeaderVerification } from './middleware/header-verification';
 import errorMiddleware from './middleware/error-middleware';
 import { AuthRouter } from './routers/auth';
-import UserRouter from './routers/user,';
+import UserRouter from './routers/user';
 import CanteenRouter from './routers/canteen';
 
 const app = express();

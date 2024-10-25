@@ -5,7 +5,7 @@
 import { AccountTypes, GenericAPIBody } from './global';
 
 export interface UserDbBody {
-  id: number;
+  id: string;
   registration_id: string;
   name: string;
   phone: number;
@@ -43,7 +43,7 @@ export interface RegisterReqBody {
  */
 
 export interface AbstractedUser {
-  id: number;
+  id: string;
   registration_id: string;
   name: string;
   phone: number;

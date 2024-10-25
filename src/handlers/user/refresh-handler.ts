@@ -13,7 +13,7 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
   if (!user) return next(new Error('User not found'));
 
   // Verify the refresh token
-  const isVerified = await verifyJwt(refreshToken, 'refresh', phone, Number(accountId));
+  const isVerified = await verifyJwt(refreshToken, 'refresh', phone, accountId);
   if (!isVerified.success) return next(new AppError(isVerified.message, 'AUTHENTICATION_ERROR', 401));
 
   const accessToken = await user.generateToken('access');

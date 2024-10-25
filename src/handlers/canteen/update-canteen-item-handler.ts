@@ -5,7 +5,7 @@ import { UpdateCanteenReqBody } from '../../../types/canteen';
 import { GenericAPIBody, GenericAPIResponse } from '../../../types/global';
 
 export default catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const { id } = req.params;
+  const { id } = req.body as UpdateCanteenReqBody;
   const { name, description, price, type } = req.body as UpdateCanteenReqBody;
 
   const item = await Canteen_Item.getById(Number(id));
@@ -13,10 +13,12 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
     return next(new Error('Canteen item not found'));
   }
 
-  item.name = name;
-  item.description = description;
-  item.price = price;
-  item.type = type;
+  console.log(item);
+
+  if (name) item.name = name;
+  if (description) item.description = description;
+  if (price) item.price = price;
+  if (type) item.type = type;
 
   await item.update();
 

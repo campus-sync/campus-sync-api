@@ -1,14 +1,15 @@
 import { sign } from 'jsonwebtoken';
 import { TokenPayload } from '../../../types/jwt';
-import { pool } from '../connection';
+import { mongoClient, pool } from '../connection';
 import { AppError } from '../../middleware/error-middleware';
 import { UserDbBody } from '../../../types/auth';
 import { compareSync } from 'bcrypt';
 import { AccountTypes } from '../../../types/global';
 import { hashPassword } from '../../util/cryptography';
+import { ObjectId } from 'mongodb';
 
 export default class User {
-  private _id?: number;
+  private _id?: string;
   registrationId: string;
 
   name: string;
@@ -37,7 +38,7 @@ export default class User {
     updatedAt?: Date,
     deletedAt?: Date,
     createdAt?: Date,
-    id?: number
+    id?: string
   ) {
     this.registrationId = registrationId;
     this.name = name;
@@ -55,27 +56,23 @@ export default class User {
     if (id) this._id = id;
   }
 
-  async save(): Promise<number> {
+  async save(): Promise<string> {
     const hashed = await hashPassword(this.password);
 
-    const data: { id: number } = (
-      await pool.query(
-        'INSERT INTO users(registration_id, name, phone, email, password, photo, account_type, created_at, updated_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id',
-        [
-          this.registrationId,
-          this.name,
-          this.phone,
-          this.email,
-          hashed,
-          this.photo,
-          this.accountType,
-          this.createdAt,
-          this.updatedAt,
-        ]
-      )
-    ).rows[0];
-    this._id = data.id;
-    return data.id;
+    const result = await mongoClient.db().collection('users').insertOne({
+      registrationId: this.registrationId,
+      name: this.name,
+      phone: this.phone,
+      email: this.email,
+      password: hashed,
+      photo: this.photo,
+      accountType: this.accountType,
+      createdAt: this.createdAt,
+      updatedAt: this.updatedAt,
+    });
+
+    this._id = result.insertedId.toString();
+    return result.insertedId.toString();
   }
 
   async checkPassword(password: string): Promise<boolean> {
@@ -113,10 +110,12 @@ export default class User {
    */
 
   async delete(): Promise<boolean> {
-    const data = await pool.query('UPDATE users SET deleted_at = $1 WHERE id = $2', [new Date(), this.id]);
-    if (data.rowCount === 0) return false;
+    const result = await mongoClient
+      .db()
+      .collection('users')
+      .updateOne({ _id: new ObjectId(this._id) }, { $set: { deletedAt: new Date() } });
 
-    return true;
+    return result.modifiedCount > 0;
   }
 
   /*
@@ -126,32 +125,28 @@ export default class User {
   async update(target: string, value: string): Promise<boolean> {
     if (target === 'email') {
       // Check if email already linked
-      const data = await pool.query('SELECT * FROM users WHERE email = $1', [value]);
-      if (data?.rowCount && data?.rowCount > 0) throw new AppError('Email already in use', 'INVALID_PARAMETERS', 400);
+      const data = await mongoClient.db().collection('users').findOne({ email: value });
+      if (data) throw new AppError('Email already in use', 'INVALID_PARAMETERS', 400);
     }
 
     if (target === 'phone') {
       // Check if phone already linked
-      const data = await pool.query('SELECT * FROM users WHERE phone = $1', [value]);
-      if (data?.rowCount && data?.rowCount > 0) throw new AppError('Phone already in use', 'INVALID_PARAMETERS', 400);
+      const data = await mongoClient.db().collection('users').findOne({ phone: value });
+      if (data) throw new AppError('Phone already in use', 'INVALID_PARAMETERS', 400);
     }
 
     if (target === 'registration_id') {
       // Check if registration_id already linked
-      const data = await pool.query('SELECT * FROM users WHERE registration_id = $1', [value]);
-
-      if (data?.rowCount && data?.rowCount > 0)
-        throw new AppError('Registration ID already in use', 'INVALID_PARAMETERS', 400);
+      const data = await mongoClient.db().collection('users').findOne({ registrationId: value });
+      if (data) throw new AppError('Registration ID already in use', 'INVALID_PARAMETERS', 400);
     }
 
-    const data = await pool.query(`UPDATE users SET ${target} = $1, updated_at = $2 WHERE id = $3`, [
-      value,
-      new Date(),
-      this.id,
-    ]);
+    const result = await mongoClient
+      .db()
+      .collection('users')
+      .updateOne({ _id: new ObjectId(this._id) }, { $set: { [target]: value, updatedAt: new Date() } });
 
-    if (data.rowCount === 0) return false;
-    return true;
+    return result.modifiedCount > 0;
   }
 
   /*
@@ -161,32 +156,28 @@ export default class User {
   async recover(): Promise<boolean> {
     if (!this.deletedAt) return false;
 
-    const data = await pool.query('UPDATE users SET deleted_at = $1 WHERE id = $2', [null, this.id]);
-    if (data.rowCount === 0) return false;
-    return true;
+    const result = await mongoClient
+      .db()
+      .collection('users')
+      .updateOne({ _id: new ObjectId(this._id) }, { $set: { deletedAt: null } });
+
+    return result.modifiedCount > 0;
   }
 
   /*
    * Get the user from the database by id
    */
 
-  static async getById(getId: number): Promise<User | undefined> {
-    const data = await pool.query('SELECT * FROM users WHERE id = $1', [getId]);
+  static async getById(getId: string): Promise<User | undefined> {
+    const data = await mongoClient
+      .db()
+      .collection('users')
+      .findOne({ _id: new ObjectId(getId) });
 
-    if (data.rowCount === 0) return undefined;
-    const {
-      registration_id: registrationId,
-      name,
-      phone,
-      email,
-      password,
-      photo,
-      account_type: accountType,
-      id,
-      deleted_at: deletedAt,
-      updated_at: updatedAt,
-      created_at: createdAt,
-    }: UserDbBody = data.rows[0];
+    if (!data) return undefined;
+
+    const { registrationId, name, phone, email, password, photo, accountType, _id, deletedAt, updatedAt, createdAt } =
+      data;
 
     return new User(
       registrationId,
@@ -199,7 +190,7 @@ export default class User {
       updatedAt,
       deletedAt,
       createdAt,
-      id
+      _id.toString()
     );
   }
 
@@ -208,22 +199,12 @@ export default class User {
    */
 
   static async getByPhone(getPhone: number): Promise<User | undefined> {
-    const data = await pool.query('SELECT * FROM users WHERE phone = $1', [getPhone]);
-    if (data.rowCount === 0) return undefined;
+    const data = await mongoClient.db().collection('users').findOne({ phone: getPhone });
 
-    const {
-      registration_id: registrationId,
-      name,
-      phone,
-      email,
-      password,
-      photo,
-      account_type: accountType,
-      id,
-      deleted_at: deletedAt,
-      updated_at: updatedAt,
-      created_at: createdAt,
-    }: UserDbBody = data.rows[0];
+    if (!data) return undefined;
+
+    const { registrationId, name, phone, email, password, photo, accountType, _id, deletedAt, updatedAt, createdAt } =
+      data;
 
     return new User(
       registrationId,
@@ -236,7 +217,7 @@ export default class User {
       updatedAt,
       deletedAt,
       createdAt,
-      id
+      _id.toString()
     );
   }
 }
