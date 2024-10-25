@@ -7,7 +7,7 @@ export type CanteenItemTypes = 'breakfast' | 'lunch' | 'snacks';
 export interface AddCanteenReqBody {
   name: string;
   description: string;
-  price: number;
+  price: number | string;
   type: CanteenItemTypes;
 }
 
@@ -15,7 +15,7 @@ export interface UpdateCanteenReqBody {
   id: string;
   name?: string;
   description?: string;
-  price?: number;
+  price?: number | string;
   type?: CanteenItemTypes;
 }
 
@@ -35,6 +35,7 @@ export interface CanteenItemAbstracted {
   description: string;
   price: number;
   type: CanteenItemTypes;
+  photo: string;
 }
 
 export interface ListCanteenItemsResBody extends GenericAPIBody {
@@ -51,6 +52,7 @@ export interface CanteenItemDbBody {
   description: string;
   price: number;
   type: CanteenItemTypes;
+  photo: string;
   created_at: Date;
   updated_at: Date;
 }

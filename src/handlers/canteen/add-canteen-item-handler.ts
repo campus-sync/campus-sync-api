@@ -7,7 +7,10 @@ import { GenericAPIBody, GenericAPIResponse } from '../../../types/global';
 export const addCanteenItemHandler = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { name, description, price, type } = req.body as AddCanteenReqBody;
 
-  const newItem = new Canteen_Item(name, description, price, type);
+  const baseURL = process.env.image_base_URL;
+  const photo = req.file ? `${baseURL}/canteen/${req.file.filename}` : `${baseURL}/placeholder.png`;
+
+  const newItem = new Canteen_Item(name, description, Number(price), type, photo);
   await newItem.save();
 
   const response: GenericAPIResponse<GenericAPIBody> = {

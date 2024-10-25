@@ -1,6 +1,7 @@
 import express from 'express';
 import morgan from 'morgan';
 import cors from 'cors';
+import path from 'path';
 import { ActiveEndpointHandler, InvalidEndpointHandler, MethodNotAllowedHandler } from './handlers/base-handler';
 import { AccessVerification } from './middleware/access-verification';
 import { AuthorizedHeaderVerification, GenericHeaderVerification } from './middleware/header-verification';
@@ -22,6 +23,8 @@ const baseURL: string = '/api/v1';
  */
 
 // Body parser middleware
+
+app.use(express.static(path.join(__dirname, '../public')));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));

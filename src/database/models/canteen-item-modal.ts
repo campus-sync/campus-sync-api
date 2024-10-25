@@ -9,12 +9,14 @@ export default class Canteen_Item {
   description: string;
   price: number;
   type: string;
+  photo: string;
 
-  constructor(name: string, description: string, price: number, type: string, id?: ObjectId) {
+  constructor(name: string, description: string, price: number, type: string, photo: string, id?: ObjectId) {
     this.name = name;
     this.description = description;
     this.price = price;
     this.type = type;
+    this.photo = photo;
 
     if (id) this._id = id;
   }
@@ -29,6 +31,7 @@ export default class Canteen_Item {
       description: this.description,
       price: this.price,
       type: this.type,
+      photo: this.photo,
     });
     this._id = result.insertedId;
   }
@@ -50,6 +53,7 @@ export default class Canteen_Item {
             description: this.description,
             price: this.price,
             type: this.type,
+            photo: this.photo,
           },
         }
       );
@@ -65,6 +69,7 @@ export default class Canteen_Item {
       description: item.description,
       price: item.price,
       type: item.type,
+      photo: item.photo,
       created_at: item.created_at,
       updated_at: item.updated_at,
     }));
@@ -77,6 +82,7 @@ export default class Canteen_Item {
       description: item.description,
       price: item.price,
       type: item.type,
+      photo: item.photo,
     };
   }
 
@@ -86,6 +92,6 @@ export default class Canteen_Item {
       .collection('canteen_items')
       .findOne({ _id: new ObjectId(id) });
     if (!data) return null;
-    return new Canteen_Item(data.name, data.description, data.price, data.type, data._id);
+    return new Canteen_Item(data.name, data.description, data.price, data.type, data.photo, data._id);
   }
 }

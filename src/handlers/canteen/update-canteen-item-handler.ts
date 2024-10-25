@@ -15,7 +15,7 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
 
   if (name) item.name = name;
   if (description) item.description = description;
-  if (price) item.price = price;
+  if (price) item.price = Number(price);
   if (type) item.type = type;
 
   await item.update();
