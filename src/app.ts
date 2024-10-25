@@ -9,6 +9,7 @@ import errorMiddleware from './middleware/error-middleware';
 import { AuthRouter } from './routers/auth';
 import UserRouter from './routers/user';
 import CanteenRouter from './routers/canteen';
+import VendorRouter from './routers/vendor';
 
 const app = express();
 app.options('*', cors());
@@ -39,6 +40,7 @@ app.route(baseURL).get(ActiveEndpointHandler).all(MethodNotAllowedHandler);
 app.use(`${baseURL}/auth`, AuthRouter);
 app.use(`${baseURL}/user`, UserRouter);
 app.use(`${baseURL}/canteen`, CanteenRouter);
+app.use(`${baseURL}/vendor`, VendorRouter);
 
 app.use(AuthorizedHeaderVerification);
 
