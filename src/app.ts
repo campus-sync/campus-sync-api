@@ -1,5 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
+import cors from 'cors';
 import { ActiveEndpointHandler, InvalidEndpointHandler, MethodNotAllowedHandler } from './handlers/base-handler';
 import { AccessVerification } from './middleware/access-verification';
 import { AuthorizedHeaderVerification, GenericHeaderVerification } from './middleware/header-verification';
@@ -9,6 +10,8 @@ import UserRouter from './routers/user';
 import CanteenRouter from './routers/canteen';
 
 const app = express();
+app.options('*', cors());
+app.use(cors());
 export default app;
 
 // Base URL where all the logics are handled

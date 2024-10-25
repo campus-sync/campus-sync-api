@@ -1,11 +1,12 @@
 import { AbstractedUser, LoginReqBody, LoginResBody } from '../../../types/auth';
-import { GenericAPIResponse } from '../../../types/global';
+import { GenericAPIResponse, GenericReqHeaders } from '../../../types/global';
 import User from '../../database/models/user-modal';
 import { AppError, catchAsync } from '../../middleware/error-middleware';
 import { Request, Response, NextFunction } from 'express';
 
 export default catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const { password, phone } = req.body as LoginReqBody;
+  const { 'x-account-type': accountType } = req.headers as unknown as GenericReqHeaders;
 
   const user = await User.getByPhone(Number(phone));
 
@@ -13,11 +14,13 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
     return next(new AppError('User not found', 'INVALID_PARAMETERS', 404));
   }
 
+  if (user.accountType !== accountType) {
+    return next(new AppError('Invalid account type', 'INVALID_PARAMETERS', 400));
+  }
+
   if (!(await user.checkPassword(password))) {
     return next(new AppError('Invalid password', 'INVALID_PARAMETERS', 400));
   }
-
-  console.log(user);
 
   const abstractedUser: AbstractedUser = {
     id: user.id,

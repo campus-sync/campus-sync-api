@@ -22,7 +22,7 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
     code: 200,
     data: {
       message: 'Refreshed access token successfully',
-      accessToken,
+      access_token: accessToken,
     },
   };
 

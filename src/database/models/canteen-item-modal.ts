@@ -1,15 +1,16 @@
 import { CanteenItemAbstracted, CanteenItemDbBody } from '../../../types/canteen';
-import { pool } from '../connection';
+import { mongoClient } from '../connection';
+import { ObjectId } from 'mongodb';
 
 export default class Canteen_Item {
-  private _id?: number;
+  private _id?: ObjectId;
 
   name: string;
   description: string;
   price: number;
   type: string;
 
-  constructor(name: string, description: string, price: number, type: string, id?: number) {
+  constructor(name: string, description: string, price: number, type: string, id?: ObjectId) {
     this.name = name;
     this.description = description;
     this.price = price;
@@ -23,41 +24,55 @@ export default class Canteen_Item {
   }
 
   async save(): Promise<void> {
-    const data = await pool.query(
-      'INSERT INTO canteen_items(name, description, price, type) VALUES($1, $2, $3, $4) RETURNING id',
-      [this.name, this.description, this.price, this.type]
-    );
-    this._id = data.rows[0].id;
+    const result = await mongoClient.db().collection('canteen_items').insertOne({
+      name: this.name,
+      description: this.description,
+      price: this.price,
+      type: this.type,
+    });
+    this._id = result.insertedId;
   }
 
   async delete(): Promise<boolean> {
-    const data = await pool.query('DELETE FROM canteen_items WHERE id = $1', [this.id]);
-    if (data.rowCount === 0) return false;
-    return true;
+    const result = await mongoClient.db().collection('canteen_items').deleteOne({ _id: this.id });
+    return result.deletedCount > 0;
   }
 
   async update(): Promise<boolean> {
-    console.log(this);
-
-    const data = await pool.query(
-      `
-      UPDATE canteen_items SET name = $1, description = $2, price = $3, type = $4
-      WHERE id = $5 RETURNING id`,
-      [this.name, this.description, this.price, this.type, this.id]
-    );
-
-    if (data.rowCount === 0) return false;
-    return true;
+    const result = await mongoClient
+      .db()
+      .collection('canteen_items')
+      .updateOne(
+        { _id: this.id },
+        {
+          $set: {
+            name: this.name,
+            description: this.description,
+            price: this.price,
+            type: this.type,
+          },
+        }
+      );
+    return result.modifiedCount > 0;
   }
 
   static async getAll(): Promise<CanteenItemDbBody[]> {
-    const data = await pool.query('SELECT * FROM canteen_items');
-    return data.rows;
+    const data = await mongoClient.db().collection('canteen_items').find().toArray();
+
+    return data.map((item) => ({
+      id: item._id.toString(),
+      name: item.name,
+      description: item.description,
+      price: item.price,
+      type: item.type,
+      created_at: item.created_at,
+      updated_at: item.updated_at,
+    }));
   }
 
   static toAbstract(item: CanteenItemDbBody): CanteenItemAbstracted {
     return {
-      id: item.id,
+      id: item.id.toString(),
       name: item.name,
       description: item.description,
       price: item.price,
@@ -65,10 +80,12 @@ export default class Canteen_Item {
     };
   }
 
-  static async getById(id: number): Promise<Canteen_Item | null> {
-    const data = await pool.query('SELECT * FROM canteen_items WHERE id = $1', [id]);
-    if (data.rows.length === 0) return null;
-    const item = data.rows[0];
-    return new Canteen_Item(item.name, item.description, item.price, item.type, item.id);
+  static async getById(id: string): Promise<Canteen_Item | null> {
+    const data = await mongoClient
+      .db()
+      .collection('canteen_items')
+      .findOne({ _id: new ObjectId(id) });
+    if (!data) return null;
+    return new Canteen_Item(data.name, data.description, data.price, data.type, data._id);
   }
 }

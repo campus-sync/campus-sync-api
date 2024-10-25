@@ -12,7 +12,7 @@ export interface AddCanteenReqBody {
 }
 
 export interface UpdateCanteenReqBody {
-  id: number;
+  id: string;
   name?: string;
   description?: string;
   price?: number;
@@ -20,7 +20,7 @@ export interface UpdateCanteenReqBody {
 }
 
 export interface DeleteCanteenItemReqBody {
-  id: number;
+  id: string;
 }
 
 /*
@@ -30,7 +30,7 @@ export interface DeleteCanteenItemReqBody {
 import { GenericAPIBody } from './global';
 
 export interface CanteenItemAbstracted {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;
@@ -46,7 +46,7 @@ export interface ListCanteenItemsResBody extends GenericAPIBody {
  */
 
 export interface CanteenItemDbBody {
-  id: number;
+  id: string;
   name: string;
   description: string;
   price: number;

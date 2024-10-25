@@ -32,7 +32,7 @@ export const deleteCanteenItemBodyValidator = (req: Request, res: Response, next
     return next(new AppError('Missing required field: id', 'MISSING_FIELDS', 400));
   }
 
-  if (typeof id !== 'number') {
+  if (typeof id !== 'string') {
     return next(new AppError('Invalid id type, must be a number', 'INVALID_PARAMETERS', 400));
   }
 

@@ -8,12 +8,10 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
   const { id } = req.body as UpdateCanteenReqBody;
   const { name, description, price, type } = req.body as UpdateCanteenReqBody;
 
-  const item = await Canteen_Item.getById(Number(id));
+  const item = await Canteen_Item.getById(id);
   if (!item) {
     return next(new Error('Canteen item not found'));
   }
-
-  console.log(item);
 
   if (name) item.name = name;
   if (description) item.description = description;

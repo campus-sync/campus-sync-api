@@ -13,5 +13,5 @@ export interface RefreshReqBody {
  */
 
 export interface RefreshResBody extends GenericAPIBody {
-  accessToken: string;
+  access_token: string;
 }
