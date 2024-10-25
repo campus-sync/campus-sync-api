@@ -6,7 +6,7 @@ import User from '../../database/models/user-modal';
 import { GenericAPIBody, GenericAPIResponse, GenericReqHeaders } from '../../../types/global';
 
 export default catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const { registration_id, name, email, phone, password, account_type } = req.body as RegisterReqBody;
+  const { registration_id, name, description, email, phone, password, account_type } = req.body as RegisterReqBody;
   const { 'x-account-type': reqAccountType } = req.headers as unknown as GenericReqHeaders;
 
   if (account_type === 'institution_spoc') {
@@ -37,12 +37,15 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
     }
   }
 
-  const existingUser = await User.getByPhone(phone);
+  const existingUser = await User.getByPhone(Number(phone));
   if (existingUser) {
     return next(new AppError('User already exists', 'INVALID_PARAMETERS', 400));
   }
 
-  const user = new User(registration_id, name, phone, password, account_type, email);
+  const baseURL = process.env.image_base_URL;
+  const photo = req.file ? `${baseURL}/users/${req.file.filename}` : `${baseURL}/placeholder.png`;
+
+  const user = new User(registration_id, name, Number(phone), password, account_type, email, photo, description);
   await user.save();
 
   const response: GenericAPIResponse<GenericAPIBody> = {

@@ -1,8 +1,7 @@
 import { sign } from 'jsonwebtoken';
 import { TokenPayload } from '../../../types/jwt';
-import { mongoClient, pool } from '../connection';
+import { mongoClient } from '../connection';
 import { AppError } from '../../middleware/error-middleware';
-import { UserDbBody } from '../../../types/auth';
 import { compareSync } from 'bcrypt';
 import { AccountTypes } from '../../../types/global';
 import { hashPassword } from '../../util/cryptography';
@@ -17,6 +16,7 @@ export default class User {
   email?: string;
   password: string;
   photo?: string;
+  description?: string;
 
   accountType: AccountTypes;
   createdAt: Date;
@@ -35,6 +35,7 @@ export default class User {
     accountType: AccountTypes,
     email?: string,
     photo?: string,
+    description?: string,
     updatedAt?: Date,
     deletedAt?: Date,
     createdAt?: Date,
@@ -48,6 +49,7 @@ export default class User {
 
     if (email) this.email = email;
     if (photo) this.photo = photo;
+    if (description) this.description = description;
 
     this.updatedAt = updatedAt ? updatedAt : new Date();
     this.createdAt = createdAt ? createdAt : new Date();
@@ -66,6 +68,7 @@ export default class User {
       email: this.email,
       password: hashed,
       photo: this.photo,
+      description: this.description,
       accountType: this.accountType,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
@@ -176,8 +179,20 @@ export default class User {
 
     if (!data) return undefined;
 
-    const { registrationId, name, phone, email, password, photo, accountType, _id, deletedAt, updatedAt, createdAt } =
-      data;
+    const {
+      registrationId,
+      name,
+      phone,
+      email,
+      password,
+      photo,
+      description,
+      accountType,
+      _id,
+      deletedAt,
+      updatedAt,
+      createdAt,
+    } = data;
 
     return new User(
       registrationId,
@@ -187,6 +202,7 @@ export default class User {
       accountType,
       email,
       photo,
+      description,
       updatedAt,
       deletedAt,
       createdAt,
@@ -203,8 +219,20 @@ export default class User {
 
     if (!data) return undefined;
 
-    const { registrationId, name, phone, email, password, photo, accountType, _id, deletedAt, updatedAt, createdAt } =
-      data;
+    const {
+      registrationId,
+      name,
+      phone,
+      email,
+      password,
+      photo,
+      description,
+      accountType,
+      _id,
+      deletedAt,
+      updatedAt,
+      createdAt,
+    } = data;
 
     return new User(
       registrationId,
@@ -214,6 +242,7 @@ export default class User {
       accountType,
       email,
       photo,
+      description,
       updatedAt,
       deletedAt,
       createdAt,

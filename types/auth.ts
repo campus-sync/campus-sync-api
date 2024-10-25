@@ -31,7 +31,8 @@ export interface RegisterReqBody {
   registration_id: string;
 
   name: string;
-  phone: number;
+  description?: string;
+  phone: string;
   email?: string;
   account_type?: AccountTypes;
 

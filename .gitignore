@@ -137,3 +137,7 @@ dist
 
 # SvelteKit build / generate output
 .svelte-kit
+
+.public/images/canteen/*
+.public/images/users/*
+.public/images/vendor/*
