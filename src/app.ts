@@ -2,8 +2,10 @@ import express from 'express';
 import morgan from 'morgan';
 import { ActiveEndpointHandler, InvalidEndpointHandler, MethodNotAllowedHandler } from './handlers/base-handler';
 import { AccessVerification } from './middleware/access-verification';
-import { GenericHeaderVerification } from './middleware/header-verification';
+import { AuthorizedHeaderVerification, GenericHeaderVerification } from './middleware/header-verification';
 import errorMiddleware from './middleware/error-middleware';
+import { AuthRouter } from './routers/auth';
+import UserRouter from './routers/user,';
 
 const app = express();
 export default app;
@@ -26,6 +28,11 @@ app.route('/').get(ActiveEndpointHandler).all(MethodNotAllowedHandler);
 // BASE URL and to verify if the request has access using the access key
 app.use(AccessVerification, GenericHeaderVerification);
 app.route(baseURL).get(ActiveEndpointHandler).all(MethodNotAllowedHandler);
+
+app.use(`${baseURL}/auth`, AuthRouter);
+app.use(`${baseURL}/user`, UserRouter);
+
+app.use(AuthorizedHeaderVerification);
 
 /*
  * Importing all the individual routers

@@ -28,8 +28,8 @@ export const AuthorizedHeaderVerification = catchAsync(async (req: Request, res:
     'x-account-id': accountId,
     'x-account-type': accountType,
   }: AuthorizedReqHeaders = req.headers as unknown as AuthorizedReqHeaders;
-  // Maybe Phone availabled on certain Authorized Req Body
-  const { phone } = req.body as unknown as { phone?: number };
+  // // Maybe Phone availabled on certain Authorized Req Body
+  // const { phone } = req.body as unknown as { phone?: number };
 
   const missing: string[] = [];
 
@@ -41,9 +41,19 @@ export const AuthorizedHeaderVerification = catchAsync(async (req: Request, res:
     return next(new AppError(`Missing required fields! - ${missing.join(', ')}`, 'MISSING_FIELDS', 400));
   }
 
+  if (
+    accountType !== 'student' &&
+    accountType !== 'teacher' &&
+    accountType !== 'admin' &&
+    accountType !== 'vendor' &&
+    accountType !== 'department_spoc' &&
+    accountType !== 'institution_spoc'
+  )
+    return next(new AppError('Invalid account type!', 'INVALID_PARAMETERS', 400));
+
   // Verify the access token
   const user = await User.getById(Number(accountId));
-  const tokenVerification = await verifyJwt(accessToken, 'access', phone ? phone : user?.phone, Number(accountId));
+  const tokenVerification = await verifyJwt(accessToken, 'access', user.phone, Number(accountId));
   if (!tokenVerification.success) return next(new AppError(tokenVerification.message, 'AUTHENTICATION_ERROR', 401));
 
   next();
