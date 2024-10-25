@@ -6,6 +6,7 @@ import { AuthorizedHeaderVerification, GenericHeaderVerification } from './middl
 import errorMiddleware from './middleware/error-middleware';
 import { AuthRouter } from './routers/auth';
 import UserRouter from './routers/user,';
+import CanteenRouter from './routers/canteen';
 
 const app = express();
 export default app;
@@ -31,6 +32,7 @@ app.route(baseURL).get(ActiveEndpointHandler).all(MethodNotAllowedHandler);
 
 app.use(`${baseURL}/auth`, AuthRouter);
 app.use(`${baseURL}/user`, UserRouter);
+app.use(`${baseURL}/canteen`, CanteenRouter);
 
 app.use(AuthorizedHeaderVerification);
 
