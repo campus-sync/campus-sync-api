@@ -6,6 +6,7 @@ import { compareSync } from 'bcrypt';
 import { AccountTypes } from '../../../types/global';
 import { hashPassword } from '../../util/cryptography';
 import { ObjectId } from 'mongodb';
+import { AbstractedUser } from '../../../types/auth';
 
 export default class User {
   private _id?: string;
@@ -247,6 +248,24 @@ export default class User {
       deletedAt,
       createdAt,
       _id.toString()
+    );
+  }
+  /*
+   * Get users from the database by account type
+   */
+  static async getByAccountType(accountType: AccountTypes): Promise<AbstractedUser[]> {
+    const data = await mongoClient.db().collection('users').find({ accountType }).toArray();
+
+    return data.map(
+      ({ registrationId, name, phone, email, photo, accountType, _id }): AbstractedUser => ({
+        id: _id.toString(),
+        registration_id: registrationId,
+        name,
+        phone,
+        email,
+        photo,
+        account_type: accountType,
+      })
     );
   }
 }
