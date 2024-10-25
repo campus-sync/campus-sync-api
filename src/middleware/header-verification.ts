@@ -54,6 +54,9 @@ export const AuthorizedHeaderVerification = catchAsync(async (req: Request, res:
   // Verify the access token
   const user = await User.getById(Number(accountId));
   const tokenVerification = await verifyJwt(accessToken, 'access', user.phone, Number(accountId));
+
+  if (user.accountType !== accountType) return next(new AppError('Invalid account type!', 'INVALID_PARAMETERS', 400));
+
   if (!tokenVerification.success) return next(new AppError(tokenVerification.message, 'AUTHENTICATION_ERROR', 401));
 
   next();
