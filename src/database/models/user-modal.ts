@@ -257,15 +257,32 @@ export default class User {
     const data = await mongoClient.db().collection('users').find({ accountType }).toArray();
 
     return data.map(
-      ({ registrationId, name, phone, email, photo, accountType, _id }): AbstractedUser => ({
+      ({ registrationId, name, description, phone, email, photo, accountType, _id }): AbstractedUser => ({
         id: _id.toString(),
         registration_id: registrationId,
         name,
+        description,
         phone,
         email,
         photo,
         account_type: accountType,
       })
     );
+  }
+
+  /*
+   * Convert User object to AbstractedUser object
+   */
+  toAbstractedUser(): AbstractedUser {
+    return {
+      id: this._id || '',
+      registration_id: this.registrationId,
+      name: this.name,
+      description: this.description,
+      phone: this.phone,
+      email: this.email || '',
+      photo: this.photo || '',
+      account_type: this.accountType,
+    };
   }
 }

@@ -2,6 +2,7 @@
  * Request Body
  */
 
+import { AbstractedUser } from './auth';
 import { GenericAPIBody } from './global';
 
 export interface AddVendorReqBody {
@@ -31,6 +32,7 @@ export interface DeleteVendorReqBody {
 
 export interface ListVendorResBody extends GenericAPIBody {
   items: VendorDbBody[];
+  vendor: AbstractedUser;
 }
 
 /*

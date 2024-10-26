@@ -47,6 +47,7 @@ export interface AbstractedUser {
   id: string;
   registration_id: string;
   name: string;
+  description?: string;
   phone: number;
   email: string;
   photo: string;

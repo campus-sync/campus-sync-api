@@ -10,6 +10,7 @@ import { AuthRouter } from './routers/auth';
 import UserRouter from './routers/user';
 import CanteenRouter from './routers/canteen';
 import VendorRouter from './routers/vendor';
+import ClassRouter from './routers/class';
 
 const app = express();
 app.options('*', cors());
@@ -41,6 +42,7 @@ app.use(`${baseURL}/auth`, AuthRouter);
 app.use(`${baseURL}/user`, UserRouter);
 app.use(`${baseURL}/canteen`, CanteenRouter);
 app.use(`${baseURL}/vendor`, VendorRouter);
+app.use(`${baseURL}/class`, ClassRouter);
 
 app.use(AuthorizedHeaderVerification);
 

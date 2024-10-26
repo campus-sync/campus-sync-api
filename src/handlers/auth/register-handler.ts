@@ -9,33 +9,33 @@ export default catchAsync(async (req: Request, res: Response, next: NextFunction
   const { registration_id, name, description, email, phone, password, account_type } = req.body as RegisterReqBody;
   const { 'x-account-type': reqAccountType } = req.headers as unknown as GenericReqHeaders;
 
-  if (account_type === 'institution_spoc') {
-    if (reqAccountType !== 'admin') {
-      return next(new AppError('Only admin can create an institution spoc account', 'INVALID_PARAMETERS', 400));
-    }
-  } else if (account_type === 'department_spoc') {
-    if (reqAccountType !== 'institution_spoc') {
-      return next(
-        new AppError('Only institution spoc can create a department spoc account', 'INVALID_PARAMETERS', 400)
-      );
-    }
-  } else if (account_type === 'vendor') {
-    if (reqAccountType !== 'institution_spoc') {
-      return next(new AppError('Only institution spoc can create a vendor account', 'INVALID_PARAMETERS', 400));
-    }
-  } else if (account_type === 'teacher') {
-    if (reqAccountType !== 'department_spoc') {
-      return next(new AppError('Only department spoc can create a teacher account', 'INVALID_PARAMETERS', 400));
-    }
-  } else if (account_type === 'student') {
-    if (reqAccountType !== 'institution_spoc') {
-      return next(new AppError('Only institution spoc can create a student account', 'INVALID_PARAMETERS', 400));
-    }
-  } else if (account_type === 'admin') {
-    if (reqAccountType !== 'admin') {
-      return next(new AppError('Only admin can create an admin account', 'INVALID_PARAMETERS', 400));
-    }
-  }
+  // if (account_type === 'institution_spoc') {
+  //   if (reqAccountType !== 'admin') {
+  //     return next(new AppError('Only admin can create an institution spoc account', 'INVALID_PARAMETERS', 400));
+  //   }
+  // } else if (account_type === 'department_spoc') {
+  //   if (reqAccountType !== 'institution_spoc') {
+  //     return next(
+  //       new AppError('Only institution spoc can create a department spoc account', 'INVALID_PARAMETERS', 400)
+  //     );
+  //   }
+  // } else if (account_type === 'vendor') {
+  //   if (reqAccountType !== 'institution_spoc') {
+  //     return next(new AppError('Only institution spoc can create a vendor account', 'INVALID_PARAMETERS', 400));
+  //   }
+  // } else if (account_type === 'teacher') {
+  //   if (reqAccountType !== 'department_spoc') {
+  //     return next(new AppError('Only department spoc can create a teacher account', 'INVALID_PARAMETERS', 400));
+  //   }
+  // } else if (account_type === 'student') {
+  //   if (reqAccountType !== 'institution_spoc') {
+  //     return next(new AppError('Only institution spoc can create a student account', 'INVALID_PARAMETERS', 400));
+  //   }
+  // } else if (account_type === 'admin') {
+  //   if (reqAccountType !== 'admin') {
+  //     return next(new AppError('Only admin can create an admin account', 'INVALID_PARAMETERS', 400));
+  //   }
+  // }
 
   const existingUser = await User.getByPhone(Number(phone));
   if (existingUser) {
